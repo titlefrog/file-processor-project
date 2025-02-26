@@ -24,6 +24,8 @@ dependencies {
 
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
     implementation libs.guava
+
+    // implementation 'commons-cli:commons-cli:1.5.0' // use for readability on cli?
 }
 
 testing {
