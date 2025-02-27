@@ -26,6 +26,8 @@ dependencies {
     implementation libs.guava
 
     // implementation 'commons-cli:commons-cli:1.5.0' // use for readability on cli?
+    implementation 'org.apache.commons:commons-csv:1.9.0'
+    implementation 'com.opencsv:opencsv:5.7.1'
 }
 
 testing {
@@ -49,7 +51,12 @@ application {
     mainClass = 'com.base.FirstTest'
 }
 
-tasks.named('javadoc', Javadoc).configure {
-    exclude 'app/Internal*.java'
-    exclude 'app/internal/*'
-}
+//task runWithArgs(type: JavaExec) {
+//    classpath = sourceSets.main.runtimeClasspath
+//    mainClass = 'com.base.FirstTest'
+//    args = project.hasProperty('csv1') && project.hasProperty('csv2') ? [project.csv1, project.csv2] : []
+//}
+//
+//tasks.named('run') {
+//    dependsOn runWithArgs
+//}

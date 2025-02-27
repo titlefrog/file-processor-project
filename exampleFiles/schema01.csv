@@ -1,0 +1,4 @@
+Column,DataType
+Name,String
+Age,Integer
+City,String
