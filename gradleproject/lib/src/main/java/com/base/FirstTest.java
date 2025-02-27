@@ -7,6 +7,7 @@ import java.util.List;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 public class FirstTest {
 
@@ -67,6 +68,39 @@ public class FirstTest {
             System.out.println(e); // Handle exceptions appropriately
             return null; // Return null in case of an error
         }
+    }
+
+    public static List<List<String>> readData(String filePath) {
+        try {
+            List<List<String>> data = new ArrayList<>();
+
+            FileReader fr = new FileReader(filePath);
+            CSVReader reader = new CSVReader(fr);
+
+            reader.readNext(); // Skip the header line
+
+            String[] lineData = reader.readNext();
+            while (lineData != null) {
+                data.add(Arrays.asList(lineData));
+                lineData = reader.readNext();
+            }
+
+            for (List<String> list : data) { // list of lists of strings
+                for (String str : list) {
+                    System.out.print(str + " ");
+                }
+                System.out.println();
+            }
+
+            reader.close();
+
+            return data;
+
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+
     }
 
     public static String getDataType(String value) {
@@ -131,13 +165,17 @@ public class FirstTest {
             List<ColumnInfo> columnInfos = readFileHeader(csv1Path);
 
             if (columnInfos != null) {
-
+                System.out.println("\nFile header:");
                 for (ColumnInfo columnInfo : columnInfos) {
                     System.out.println(columnInfo.columnName + " : " + columnInfo.dataType);
                 }
             } else {
                 System.out.println("Could not retrieve header information.");
             }
+
+            System.out.println("\nFile contents:");
+            List<List<String>> fileData = readData(csv1Path);
+
         } else {
             System.out.println("File name mismatch.");
         }
