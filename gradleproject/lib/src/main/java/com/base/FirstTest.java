@@ -75,7 +75,16 @@ public class FirstTest {
             List<List<String>> data = new ArrayList<>();
 
             FileReader fr = new FileReader(filePath);
-            CSVReader reader = new CSVReader(fr);
+            CSVReader reader = new CSVReader(fr); // need this?
+
+//            // custom separator semi-colon
+//            CSVParser parser = new CSVParserBuilder().withSeparator(';').build();
+//
+//            // create csvReader object with parameter
+//            // filereader and parser
+//            CSVReader csvReader = new CSVReaderBuilder(filereader)
+//                    .withCSVParser(parser)
+//                    .build();
 
             reader.readNext(); // Skip the header line
 
@@ -120,16 +129,44 @@ public class FirstTest {
     }
 
     public static boolean matchingFileName(String fileName, String filePath) {
-
         Path path = Paths.get(filePath);
         String nameFromPath = path.getFileName().toString();
-
-        if (nameFromPath.equals(fileName)) {
-            return true;
-        } else {
-            return false;
-        }
+        return nameFromPath.equals(fileName);
     }
+
+    public static boolean performAverage(int index, List<List<String>> data, List<ColumnInfo> columnInfos) {
+
+        // list[0][columnIndex]
+        if (data == null) {
+            return false; // Handle null input
+        }
+
+        for (List<String> innerList : data) {
+            if (innerList != null && innerList.size() >= 2) {
+                System.out.println(innerList.get(index)); // Access the second item (index 1)
+            } else {
+                // Handle cases where the inner list is null or has fewer than 2 elements
+                //System.out.println("Error at column:row: " +  + "");
+                System.out.println("Inner list too short (<2) or null"); //Or any other error handling you need.
+            }
+        }
+
+        return true;
+
+    }
+
+    public static int getColumnIndex(List<ColumnInfo> columnInfos, String columnName) {
+        if (columnInfos == null || columnName == null) {
+            return -1;
+        }
+        for (int i = 0; i < columnInfos.size(); i++) {
+            if (columnName.equals(columnInfos.get(i).columnName)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
 
     public static void main(String[] args) {
 
@@ -138,12 +175,12 @@ public class FirstTest {
             // Optional: schema name. schema file type. schema file.
             int numArgs = args.length;
 
-            if (numArgs == 3 || numArgs == 6) {
-                System.out.println("Supplied arguments:");
+            if (numArgs >= 3 ) {
+                System.out.println("Arguments:");
 
                 for (int i = 0; i < numArgs; i++) {
-                    System.out.println((i + 1) + ": " + args[i]);
-                } // trailing white space?
+                    System.out.print((i + 1) + ": " + args[i] + ", ");
+                }
             } else {
                 System.out.println("Too many or too few arguments (" + numArgs + ").");
             }
@@ -154,27 +191,65 @@ public class FirstTest {
         String csv1FileName = args[0];
         String csv1FileType = args[1];
         String csv1Path = args[2];
+        String hasHeader = args[3];
+        String aggFunction = args[4];
+        String selectedColName = args[5];
+
+
+        //List<String> groupingCols = Arrays.asList(args[6].split(","));
+        String groupingCols = args[6];
+
 //        String csv1FileName = args[3];
 //        String csv1FileType = args[4];
 //        String csv1Path = args[5];
+
+        System.out.println("\n\nSupplied arguments:\n");
+        System.out.println("Input file name:" + csv1FileName);
+        System.out.println("Input file type:" + csv1FileType);
+        System.out.println("Input file path:" + csv1Path);
+        System.out.println("hasHeader?:" + hasHeader);
+
+        System.out.println("Aggregate function to perform:" + aggFunction);
+        System.out.println("Column to perform function on:" + selectedColName);
+        System.out.println("Grouping columns:" + groupingCols);
+
 
         System.out.println();
 
         if (matchingFileName(csv1FileName, csv1Path)) {
 
-            List<ColumnInfo> columnInfos = readFileHeader(csv1Path);
+            if (hasHeader.equals("true")) {
 
-            if (columnInfos != null) {
-                System.out.println("\nFile header:");
-                for (ColumnInfo columnInfo : columnInfos) {
-                    System.out.println(columnInfo.columnName + " : " + columnInfo.dataType);
+                List<ColumnInfo> columnInfos = readFileHeader(csv1Path);
+
+                if (columnInfos != null) {
+                    System.out.println("\nFile header:");
+
+                    for (ColumnInfo columnInfo : columnInfos) {
+                        System.out.println(columnInfo.columnName + " : " + columnInfo.dataType);
+                    }
+
+                    int columnIndex = getColumnIndex(columnInfos, selectedColName);
+                    if (columnIndex != -1) {
+                        //double average = calculateAverage(fileData, columnIndex);
+                        System.out.println("Column index: " + columnIndex + " - \"" + selectedColName + "\"");
+
+                        System.out.println("\nFile contents:");
+                        List<List<String>> fileData = readData(csv1Path);
+                        performAverage(columnIndex, fileData, columnInfos);
+
+                    } else {
+                        System.out.println("Column '" + selectedColName + "' not found.");
+                    }
+
+                } else {
+                    System.out.println("Could not retrieve header information.");
                 }
+            } else if (hasHeader.equals("false")) {
+                System.out.println("HasHeader: false");
             } else {
-                System.out.println("Could not retrieve header information.");
+                System.out.println("Header existence not specified");
             }
-
-            System.out.println("\nFile contents:");
-            List<List<String>> fileData = readData(csv1Path);
 
         } else {
             System.out.println("File name mismatch.");
